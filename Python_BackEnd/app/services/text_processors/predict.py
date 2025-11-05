@@ -12,7 +12,10 @@
 import os
 import sys
 import joblib
-import model_train
+from app.services.text_processors.model_train import train_model
+# import model_train
+from app.services.text_processors.data_process import preprocess_text
+# import data_process
 
 # --- 路径：当前文件位于 app_xiaotian/，模型文件位于项目根目录 -------------------------
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))     # .../The-Idea-Lab_6127/app_xiaotian
@@ -21,12 +24,12 @@ MODEL_PATH = os.path.join(PROJECT_ROOT, "audit_model.pkl")
 VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
 
 # --- 导入预处理函数（对应文档“单元格4” & 提示词第2点） ------------------------------
-try:
-    from app.data_process import preprocess_text
-except Exception:
-    if PROJECT_ROOT not in sys.path:
-        sys.path.append(PROJECT_ROOT)
-    from app.data_process import preprocess_text
+# try:
+#     from app.data_process import preprocess_text
+# except Exception:
+#     if PROJECT_ROOT not in sys.path:
+#         sys.path.append(PROJECT_ROOT)
+#     from app.data_process import preprocess_text
 
 # --- 功能1：模型加载（提示词第3点 / 文档单元格6前置） -------------------------------
 def load_trained_model():
@@ -34,7 +37,7 @@ def load_trained_model():
     加载训练好的模型与 TF-IDF 向量器。
     若文件缺失，抛异常并提示：请先运行训练命令。
     """
-    model_path, vec_path=model_train.train_model()
+    model_path, vec_path=train_model()
     if model_path is None and vec_path is not None:
         print("模型缺失")
     if vec_path is None and model_path is not None:
@@ -61,22 +64,36 @@ def predict_content(text: str) -> str:
     return _LABEL_MAP.get(pred, f"未知标签({pred})")
 
 # --- 功能3：测试用例（提示词第5点 / 文档单元格6示例风格） ----------------------------
-def test_predict() -> None:
+def test_predict(input_content: str) -> str:
     # 单元格6：5个固定样例（保持一字不差）
-    test_texts = [
-        "I hate you! You are terrible.",           # 期望：仇恨/冒犯倾向（通常→“仇恨言论”）
-        "Have a great day! I hope you're well.",   # 期望：正常文本
-        "Go away, you idiot!",                     # 期望：冒犯性文本
-        "I love learning Python.",                 # 期望：正常文本
-        "You are a stupid person."                 # 期望：冒犯性文本
-    ]
-    print("== 预测测试（与单元格6一致的5个示例）==")
-    for s in test_texts:
-        try:
-            label = predict_content(s)
-        except Exception as e:
-            label = f"[ERROR] {e}"
-        print(f"- {s}\n  -> {label}")
+    # "I hate you! You are terrible.",           # 期望：仇恨/冒犯倾向（通常→“仇恨言论”）
+    # "Have a great day! I hope you're well.",   # 期望：正常文本
+    # "Go away, you idiot!",                     # 期望：冒犯性文本
+    # "I love learning Python.",                 # 期望：正常文本
+    # "You are a stupid person."                 # 期望：冒犯性文本
+    # test_texts = []
+    # print("== 预测测试（与单元格6一致的5个示例）==")
+    # for s in test_texts:
+    #     try:
+    #         label = predict_content(s)
+    #     except Exception as e:
+    #         label = f"[ERROR] {e}"
+    #     print(f"- {s}\n  -> {label}")
+    
+    test_texts = []
+    result=""
+    if not input_content:
+        return "输入内容为空"
+    else:
+        test_texts.append(input_content)   
+        print("\n===== 预测结果 =====")
+        for text in test_texts:
+            try:
+                result = predict_content(text)
+            except Exception as e:
+                result = f"[ERROR] {e}"
+            print(f"- {text}\n  -> {result}")
+    return result
 
 
 

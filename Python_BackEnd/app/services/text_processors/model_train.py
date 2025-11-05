@@ -17,6 +17,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import joblib
+# import data_process
+from app.services.text_processors.data_process import preprocess_text
 
 # --- 路径与常量 ------------------------------------------------------------------
 DATA_URL = ("https://raw.githubusercontent.com/t-davidson/"
@@ -32,12 +34,13 @@ VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
 # --- 依赖：导入预处理函数（来自 wenjiang 的 app/data_process.py） --------------------
 # 优先包方式导入：from app.data_process import preprocess_text
 # 若包导入失败，则把 PROJECT_ROOT 加到 sys.path 后再导入，做兜底。
-try:
-    from app.data_process import preprocess_text
-except Exception:
-    if PROJECT_ROOT not in sys.path:
-        sys.path.append(PROJECT_ROOT)
-    from app.data_process import preprocess_text
+
+# try:
+#     from app.data_process import preprocess_text
+# except Exception:
+#     if PROJECT_ROOT not in sys.path:
+#         sys.path.append(PROJECT_ROOT)
+#     from app.data_process import preprocess_text
 
 
 # --- 工具函数：数据集下载（curl/wget/urllib 三重兜底） ------------------------------
