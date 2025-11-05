@@ -23,14 +23,6 @@ PROJECT_ROOT = os.path.dirname(CUR_DIR)                  # .../The-Idea-Lab_6127
 MODEL_PATH = os.path.join(PROJECT_ROOT, "audit_model.pkl")
 VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
 
-# --- 导入预处理函数（对应文档“单元格4” & 提示词第2点） ------------------------------
-# try:
-#     from app.data_process import preprocess_text
-# except Exception:
-#     if PROJECT_ROOT not in sys.path:
-#         sys.path.append(PROJECT_ROOT)
-#     from app.data_process import preprocess_text
-
 # --- 功能1：模型加载（提示词第3点 / 文档单元格6前置） -------------------------------
 def load_trained_model():
     """
@@ -71,14 +63,6 @@ def test_predict(input_content: str) -> str:
     # "Go away, you idiot!",                     # 期望：冒犯性文本
     # "I love learning Python.",                 # 期望：正常文本
     # "You are a stupid person."                 # 期望：冒犯性文本
-    # test_texts = []
-    # print("== 预测测试（与单元格6一致的5个示例）==")
-    # for s in test_texts:
-    #     try:
-    #         label = predict_content(s)
-    #     except Exception as e:
-    #         label = f"[ERROR] {e}"
-    #     print(f"- {s}\n  -> {label}")
     
     test_texts = []
     result=""

@@ -21,15 +21,15 @@ import joblib
 from app.services.text_processors.data_process import preprocess_text
 
 # --- 路径与常量 ------------------------------------------------------------------
-DATA_URL = ("https://raw.githubusercontent.com/t-davidson/"
-            "hate-speech-and-offensive-language/master/data/labeled_data.csv")
+DATA_URL = ("https://raw.githubusercontent.com/t-davidson/hate-speech-and-offensive-language/master/data/labeled_data.csv")
 
 # 当前文件位于 app_xiaotian/ 目录；模型与数据统一保存在项目根目录
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))           # .../The-Idea-Lab_6127/app_xiaotian
-PROJECT_ROOT = os.path.dirname(CUR_DIR)                        # .../The-Idea-Lab_6127
-DATA_PATH = os.path.join(PROJECT_ROOT, "labeled_data.csv")
-MODEL_PATH = os.path.join(PROJECT_ROOT, "audit_model.pkl")
-VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
+DATASHEET_PATH = os.path.join(CUR_DIR, "data")                        # .../The-Idea-Lab_6127
+os.makedirs(DATASHEET_PATH, exist_ok=True)
+DATA_PATH = os.path.join(DATASHEET_PATH, "labeled_data.csv")
+MODEL_PATH = os.path.join(DATASHEET_PATH, "audit_model.pkl")
+VEC_PATH = os.path.join(DATASHEET_PATH, "tfidf_vectorizer.pkl")
 
 # --- 依赖：导入预处理函数（来自 wenjiang 的 app/data_process.py） --------------------
 # 优先包方式导入：from app.data_process import preprocess_text
