@@ -12,6 +12,7 @@
 import os
 import sys
 import joblib
+import model_train
 
 # --- 路径：当前文件位于 app_xiaotian/，模型文件位于项目根目录 -------------------------
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))     # .../The-Idea-Lab_6127/app_xiaotian
@@ -28,21 +29,18 @@ except Exception:
     from app.data_process import preprocess_text
 
 # --- 功能1：模型加载（提示词第3点 / 文档单元格6前置） -------------------------------
-def load_trained_model(model_path: str = MODEL_PATH, vec_path: str = VEC_PATH):
+def load_trained_model():
     """
     加载训练好的模型与 TF-IDF 向量器。
     若文件缺失，抛异常并提示：请先运行训练命令。
     """
-    missing = []
-    if not os.path.exists(model_path):
-        missing.append(f"模型缺失: {model_path}")
-    if not os.path.exists(vec_path):
-        missing.append(f"向量器缺失: {vec_path}")
-    if missing:
-        raise FileNotFoundError(
-            "未找到训练产物：\n" + "\n".join(missing) +
-            '\n请先运行训练：python -c "from app_xiaotian.model_train import train_model; train_model()"'
-        )
+    model_path, vec_path=model_train.train_model()
+    if model_path is None and vec_path is not None:
+        print("模型缺失")
+    if vec_path is None and model_path is not None:
+        print("向量器缺失")
+    if vec_path is None and model_path is None:
+        print("未找到训练产物")
     model = joblib.load(model_path)
     vectorizer = joblib.load(vec_path)
     return model, vectorizer

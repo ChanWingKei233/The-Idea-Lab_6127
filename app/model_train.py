@@ -128,7 +128,8 @@ def train_model(
     if not (0.75 <= acc <= 0.85):
         print("[warn] 准确率不在 75%-85% 区间内：建议复查预处理或重训（样本划分有随机性）。")
 
-    return acc
+    # return acc
+    return save_model_path, save_vec_path
 
 
 if __name__ == "__main__":
