@@ -73,19 +73,29 @@ def preprocess_text(text: str) -> str:
     ensure_nltk_data()
 
     # 1) 转小写
-    lowered = text.lower()
+    text = text.lower()
 
     # 2) 去标点
-    table = str.maketrans('', '', string.punctuation)
-    no_punc = lowered.translate(table)
-
+    punctuation_to_remove = string.punctuation.replace('!', '').replace('?', '')
+    text = text.translate(str.maketrans('', '', punctuation_to_remove + string.digits))
+    
     # 3) 分词
-    tokens = word_tokenize(no_punc)
+    words = word_tokenize(text)
+
+    # 补充：处理否定词与后续词连接（如 "not good" → "not_good"）
+    processed_words = []
+    i = 0
+    while i < len(words):
+        if words[i] in {'dont', 'not', 'no', 'never'} and i + 1 < len(words):
+            processed_words.append(f"{words[i]}_{words[i+1]}")
+            i += 2
+        else:
+            processed_words.append(words[i])
+            i += 1
 
     # 4) 去英文停用词
     stop_set = set(stopwords.words('english'))
-    filtered = [tok for tok in tokens if tok and tok not in stop_set]
-
+    filtered = [w for w in processed_words if w not in stop_set and len(w) >= 2]
     # 输出为以空格连接的字符串
     return ' '.join(filtered)
 
