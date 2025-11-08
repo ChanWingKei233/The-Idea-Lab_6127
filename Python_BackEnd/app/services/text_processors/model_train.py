@@ -78,11 +78,8 @@ def create_offensive_binary_features(texts):
 def download_dataset(output_path: str = DATA_PATH, url: str = DATA_URL) -> None:
     """下载数据集到项目根目录；若已存在则跳过。"""
     if os.path.exists(output_path):
-        print(f"[info] 数据集已存在：{output_path}")
         return
-
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
     if shutil.which("curl"):
         print("[info] 使用 curl 下载数据集...")
         code = subprocess.call(["curl", "-L", "-o", output_path, url])
@@ -123,16 +120,19 @@ def train_model(
     save_model_path: str = MODEL_PATH,
     save_vec_path: str = VEC_PATH,
 ) -> float:
+    if os.path.exists(save_model_path) and os.path.exists(save_vec_path):
+        """模型与向量器已存在，直接返回路径。"""
+        return save_model_path, save_vec_path
+
     """按训练模型并保存，返回测试集准确率。"""
     # 下载与读取数据
     download_dataset(DATA_PATH, DATA_URL)
     df = load_and_validate_dataset(DATA_PATH)
 
     # 预处理 -> 向量化 -> 划分
-    print("[info] 开始文本清洗（调用 wenjiang 的 preprocess_text）...")
+    print("[info] 开始文本清洗...")
     # X_clean = df["tweet"].astype(str).apply(preprocess_text)
     df['processed_text'] = df['tweet'].apply(preprocess_text)
-    y = df["class"].astype(int)
 
     print("[info] TF-IDF 向量化...")
     # 2. 提取TF-IDF特征
@@ -155,7 +155,8 @@ def train_model(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # 6. 过采样（调整正常类权重，避免被误判）
+   # 6. 过采样（调整正常类权重，避免被误判）
+    from imblearn.over_sampling import SMOTE
     train_class_counts = pd.Series(y_train).value_counts()
     majority_count = train_class_counts[1]
     smote = SMOTE(
@@ -181,14 +182,11 @@ def train_model(
 
     joblib.dump(model, save_model_path)
     joblib.dump(vectorizer, save_vec_path)
+      
     print(f"[save] 模型已保存：{save_model_path}")
     print(f"[save] 向量器已保存：{save_vec_path}")
-    print(f"[save] 数据集位置：{DATA_PATH}")
-
-    if not (0.75 <= acc <= 0.85):
-        print("[warn] 准确率不在 75%-85% 区间内：建议复查预处理或重训（样本划分有随机性）。")
-
-    # return acc
+    print(f"[save] 数据集位置：{DATA_PATH}") 
+   
     return save_model_path, save_vec_path
 
 

@@ -1,4 +1,4 @@
-from app.services.text_processors.predict import test_predict
+from app.services.text_processors.predict import predict_content
 
 test_texts=[]
 def process_text(input_content: str) -> str:
@@ -10,7 +10,7 @@ def process_text(input_content: str) -> str:
         test_texts.append(input_content)   
         print("\n===== 预测结果 =====")
         for text in test_texts:
-            result = test_predict(text)
+            result = predict_content(text)
             print(f"文本：{text}")
             print(f"结果：{result}\n")
         
