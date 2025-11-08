@@ -16,12 +16,9 @@ from app.services.text_processors.model_train import train_model
 # import model_train
 from app.services.text_processors.data_process import preprocess_text
 # import data_process
-
-# --- 路径：当前文件位于 app_xiaotian/，模型文件位于项目根目录 -------------------------
-CUR_DIR = os.path.dirname(os.path.abspath(__file__))     # .../The-Idea-Lab_6127/app_xiaotian
-PROJECT_ROOT = os.path.dirname(CUR_DIR)                  # .../The-Idea-Lab_6127
-MODEL_PATH = os.path.join(PROJECT_ROOT, "audit_model.pkl")
-VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
+# 从 model_train 模块中导入特定函数
+from app.services.text_processors.model_train import create_offensive_binary_features 
+import scipy.sparse as sp  # 用于合并特征矩阵
 
 # --- 功能1：模型加载-------------------------------
 def load_trained_model():
@@ -41,7 +38,8 @@ def load_trained_model():
     return model, vectorizer
 
 # --- 功能2：预测函数------------------------
-_LABEL_MAP = {0: "正常文本", 1: "冒犯性文本", 2: "仇恨言论"}
+_LABEL_MAP = {0: "仇恨言论", 1: "冒犯性言论", 2: "正常言论"}
+
 
 def predict_content(text: str) -> str:
     """
@@ -49,36 +47,37 @@ def predict_content(text: str) -> str:
     """
     if not isinstance(text, str) or text.strip() == "":
         raise ValueError("预测文本不能为空字符串，例如：predict_content('I hate you!')")
+    
     model, vectorizer = load_trained_model()
     clean = preprocess_text(text)
-    X = vectorizer.transform([clean])
-    pred = int(model.predict(X)[0])
+    # 对测试文本提取并合并特征（与训练时一致）
+    tfidf_test = vectorizer.transform([clean])
+    binary_test = create_offensive_binary_features([clean])
+    X_test_combined = sp.hstack([tfidf_test, binary_test])
+    pred = model.predict(X_test_combined)[0]
+     
+    print(f"文本：{text}")
+    print(f"清洗后：{clean}")
+    print(f"预测结果：{_LABEL_MAP[pred]}\n")
     return _LABEL_MAP.get(pred, f"未知标签({pred})")
 
 # --- 功能3：测试用例 ----------------------------
-def test_predict(input_content: str) -> str:
-    # 5个固定样例（保持一字不差）
-    # "I hate you! You are terrible.",           # 期望：仇恨/冒犯倾向（通常→“仇恨言论”）
-    # "Have a great day! I hope you're well.",   # 期望：正常文本
-    # "Go away, you idiot!",                     # 期望：冒犯性文本
-    # "I love learning Python.",                 # 期望：正常文本
-    # "You are a stupid person."                 # 期望：冒犯性文本
-    
-    test_texts = []
-    result=""
-    if not input_content:
-        return "输入内容为空"
-    else:
-        test_texts.append(input_content)   
-        print("\n===== 预测结果 =====")
-        for text in test_texts:
-            try:
-                result = predict_content(text)
-            except Exception as e:
-                result = f"[ERROR] {e}"
-            print(f"- {text}\n  -> {result}")
-    return result
-
+def test_predict() -> None:
+    # 5个测试样例
+    test_texts = [
+        "I hate you! You are a nigger.",           # 期望：仇恨/冒犯倾向（通常→“仇恨言论”）
+        "Have a great day! I hope you're well.",   # 期望：正常文本
+        "Go away, you idiot!",                     # 期望：冒犯性文本
+        "I love learning Python.",                 # 期望：正常文本
+        "You are a stupid person."                 # 期望：冒犯性文本
+    ]
+    print("== 预测测试==")
+    for s in test_texts:
+        try:
+            label = predict_content(s)
+        except Exception as e:
+            label = f"[ERROR] {e}"
+        #print(f"- {s}\n  -> {label}")
 
 
 # 直接运行：python app_xiaotian/predict.py

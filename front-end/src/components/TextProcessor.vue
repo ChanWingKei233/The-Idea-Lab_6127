@@ -11,6 +11,7 @@ const outputText = ref('');
 
 // 发送数据到后端
 const sendToBackend = async () => {
+  outputText.value = ''
   if (!inputText.value.trim()) {
     outputText.value = '请输入内容后再发送！';
     return;
