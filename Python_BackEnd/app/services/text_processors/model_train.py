@@ -167,7 +167,7 @@ def train_model(
     # 7. 模型（提高正常类权重，减少误判）
     model = RandomForestClassifier(
         n_estimators=400,  # 大幅增加树数量，强制学习低频特征
-        class_weight={0: 1.2, 1: 1.8, 2: 1.2},  # 冒犯类（1）权重进一步提高
+        class_weight={0: 1.2, 1: 1.4, 2: 1.2},  # 冒犯类（1）权重进一步提高
         min_samples_split=2,  # 允许最细分裂，捕捉"idiot"这类低频词
         max_depth=70,  # 更深的树，学习更多细节
         random_state=42,
