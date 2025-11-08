@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-核心模块2：模型训练（对应《内容自动审核系统.docx》单元格3 + 单元格5）
-- 功能1（单元格3）：自动下载数据集、读取并校验列名
-- 功能2（单元格5）：预处理 -> TF-IDF -> 8:2 划分 -> 随机森林(n_estimators=50, random_state=42)
+核心模块2：模型训练
+- 功能1：自动下载数据集、读取并校验列名
+- 功能2：预处理 -> TF-IDF -> 8:2 划分 -> 随机森林(n_estimators=50, random_state=42)
 - 训练后打印准确率（预计 75%~85%），并保存模型与向量器（audit_model.pkl / tfidf_vectorizer.pkl）
 """
 
@@ -23,9 +23,8 @@ from app.services.text_processors.data_process import preprocess_text
 # --- 路径与常量 ------------------------------------------------------------------
 DATA_URL = ("https://raw.githubusercontent.com/t-davidson/hate-speech-and-offensive-language/master/data/labeled_data.csv")
 
-# 当前文件位于 app_xiaotian/ 目录；模型与数据统一保存在项目根目录
-CUR_DIR = os.path.dirname(os.path.abspath(__file__))           # .../The-Idea-Lab_6127/app_xiaotian
-DATASHEET_PATH = os.path.join(CUR_DIR, "data")                        # .../The-Idea-Lab_6127
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))          
+DATASHEET_PATH = os.path.join(CUR_DIR, "data")                     
 os.makedirs(DATASHEET_PATH, exist_ok=True)
 DATA_PATH = os.path.join(DATASHEET_PATH, "labeled_data.csv")
 MODEL_PATH = os.path.join(DATASHEET_PATH, "audit_model.pkl")
@@ -83,20 +82,19 @@ def load_and_validate_dataset(csv_path: str = DATA_PATH) -> pd.DataFrame:
     if not required.issubset(set(cols_lower)):
         raise ValueError(
             f"数据列缺失：需要包含 {required}；实际列为 {set(df.columns)}。"
-            "（对应文档单元格3校验）"
         )
     return df[["tweet", "class"]].dropna()
 
 
-# --- 主函数：训练模型（单元格5） ----------------------------------------------------
+# --- 主函数：训练模型 ----------------------------------------------------
 def train_model(
     n_estimators: int = 50,
     random_state: int = 42,
     save_model_path: str = MODEL_PATH,
     save_vec_path: str = VEC_PATH,
 ) -> float:
-    """按文档单元格5训练模型并保存，返回测试集准确率。"""
-    # 单元格3：下载与读取数据
+    """按训练模型并保存，返回测试集准确率。"""
+    # 下载与读取数据
     download_dataset(DATA_PATH, DATA_URL)
     df = load_and_validate_dataset(DATA_PATH)
 

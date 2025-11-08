@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-核心模块3：预测功能（对应《内容自动审核系统.docx》单元格6）
+核心模块3：预测功能
 - 依赖：app/data_process.py 的 preprocess_text（wenjiang）
 - 加载：项目根目录 audit_model.pkl / tfidf_vectorizer.pkl（xiaotian 训练生成）
 - 提供：
@@ -23,7 +23,7 @@ PROJECT_ROOT = os.path.dirname(CUR_DIR)                  # .../The-Idea-Lab_6127
 MODEL_PATH = os.path.join(PROJECT_ROOT, "audit_model.pkl")
 VEC_PATH = os.path.join(PROJECT_ROOT, "tfidf_vectorizer.pkl")
 
-# --- 功能1：模型加载（提示词第3点 / 文档单元格6前置） -------------------------------
+# --- 功能1：模型加载-------------------------------
 def load_trained_model():
     """
     加载训练好的模型与 TF-IDF 向量器。
@@ -40,7 +40,7 @@ def load_trained_model():
     vectorizer = joblib.load(vec_path)
     return model, vectorizer
 
-# --- 功能2：预测函数（提示词第4点 / 文档单元格6标签 0/1/2） -------------------------
+# --- 功能2：预测函数------------------------
 _LABEL_MAP = {0: "正常文本", 1: "冒犯性文本", 2: "仇恨言论"}
 
 def predict_content(text: str) -> str:
@@ -55,9 +55,9 @@ def predict_content(text: str) -> str:
     pred = int(model.predict(X)[0])
     return _LABEL_MAP.get(pred, f"未知标签({pred})")
 
-# --- 功能3：测试用例（提示词第5点 / 文档单元格6示例风格） ----------------------------
+# --- 功能3：测试用例 ----------------------------
 def test_predict(input_content: str) -> str:
-    # 单元格6：5个固定样例（保持一字不差）
+    # 5个固定样例（保持一字不差）
     # "I hate you! You are terrible.",           # 期望：仇恨/冒犯倾向（通常→“仇恨言论”）
     # "Have a great day! I hope you're well.",   # 期望：正常文本
     # "Go away, you idiot!",                     # 期望：冒犯性文本
