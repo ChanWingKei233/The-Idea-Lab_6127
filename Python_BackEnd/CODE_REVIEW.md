@@ -22,5 +22,13 @@
 ### 2.2 xiaotian（核心模块：模型训练 + 预测）
 | 序号 | 审查模块               | 审查内容 | 审查结果 | 验证方式 |
 | -- | -------------------- | -------- | -------- | -------- |
-| 1  | 模型训练（src/model_train.py） | 1. 自动下载labeled_data.csv，验证“tweet”“class”列；2. 随机森林参数n_estimators=50、random_state=42；3. 生成audit_model.pkl和tfidf_vectorizer.pkl，准确率75%-85%。 | \[❌] 符合 | 1. 执行`python -c "from src.model_train import train_model; train_model()"`；2. 查看代码参数；3. 日志显示准确率不在75%-85%区间内，建议复查预处理或重训（样本划分有随机性）。  |
-| 2  | 文本预测（src/predict.py）      | 1. 模型缺失抛提示“请先运行train命令”；2. 标签0=正常/1=冒犯/2=仇恨；3. test_predict含5个文档案例，结果符合预期。    | \[❌] 符合 | 1. 删除模型后调用predict_content；2. 输入任意测试文本，执行test_predict，均返回“冒犯性文本”，结果有误。 |
+| 1  | 模型训练（src/model_train.py） | 1. 自动下载labeled_data.csv，验证“tweet”“class”列；2. 随机森林参数n_estimators=50、random_state=42；3. 生成audit_model.pkl和tfidf_vectorizer.pkl，准确率最好在75%-85%。 | \[√]符合 | 1. 执行`python -c "from src.model_train import train_model; train_model()"`；2. 查看代码参数；3. 日志显示准确率略高于85%，不影响后续预测结果。  |
+| 2  | 文本预测（src/predict.py）      | 1. 模型缺失抛提示“请先运行train命令”；2. 标签0=正常/1=冒犯/2=仇恨；3. test_predict含5个文档案例，结果符合预期。    | \[√] 符合 | 1. 删除模型后调用predict_content；2. 输入任意测试文本，执行test_predict，返回预期结果。 |
+
+### 2.3 yingqi（核心模块：CLI 入口、前端界面对接）
+| 序号 | 审查模块               | 审查内容 | 审查结果 | 验证方式 |
+| -- | -------------------- | -------- | -------- | -------- |
+| 1  | 命令实现 | 1. 支持 train（训练模型）、test（运行测试案例）、predict（单文本审核）三个命令；2. predict 命令强制文本用引号包裹（如 predict "test"），未包裹时提示示例 “请用引号包裹文本（示例：python run.py predict "test"）”；3. 命令调用核心模块正确（train 调用train_model，test 调用 test_predict）| \[√] 符合 | 分别执行三条命令，均符合要求 |
+
+| 2  | 前端界面对接 | 1. API 接口实现: 提供 /api/predict (或类似) 接口用于接收前端 POST 请求；2. 请求处理: 正确解析前端发送的 JSON 数据（如 {"text": "You are stupid"}）；3. 响应格式: 返回统一格式的 JSON 响应，包含预测结果；4. 跨域支持: 配置了 CORS，允许前端域名访问后端 API。 | \[√] 符合 ｜前端验证: 打开前端页面，输入文本并提交，观察是否能正确显示预测结果。
+

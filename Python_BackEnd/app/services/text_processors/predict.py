@@ -20,22 +20,30 @@ from app.services.text_processors.data_process import preprocess_text
 from app.services.text_processors.model_train import create_offensive_binary_features 
 import scipy.sparse as sp  # 用于合并特征矩阵
 
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))          
+DATASHEET_PATH = os.path.join(CUR_DIR, "data")     
+MODEL_PATH = os.path.join(DATASHEET_PATH, "audit_model.pkl")
+VEC_PATH = os.path.join(DATASHEET_PATH, "tfidf_vectorizer.pkl")
+
 # --- 功能1：模型加载-------------------------------
 def load_trained_model():
     """
     加载训练好的模型与 TF-IDF 向量器。
     若文件缺失，抛异常并提示：请先运行训练命令。
     """
-    model_path, vec_path=train_model()
-    if model_path is None and vec_path is not None:
-        print("模型缺失")
-    if vec_path is None and model_path is not None:
-        print("向量器缺失")
-    if vec_path is None and model_path is None:
-        print("未找到训练产物")
-    model = joblib.load(model_path)
-    vectorizer = joblib.load(vec_path)
-    return model, vectorizer
+    if not os.path.isfile(MODEL_PATH):
+        raise Exception("请先运行 train 命令")
+    
+    if not os.path.isfile(VEC_PATH):
+        raise Exception("请先运行 train 命令")
+        
+    try:
+        model = joblib.load(MODEL_PATH)
+        vectorizer = joblib.load(VEC_PATH)
+        return model, vectorizer
+    except Exception as e:
+        # 如果加载过程中出现错误（如文件损坏），也抛出异常
+        raise Exception(f"模型加载失败: {e}")
 
 # --- 功能2：预测函数------------------------
 _LABEL_MAP = {0: "仇恨言论", 1: "冒犯性言论", 2: "正常言论"}
