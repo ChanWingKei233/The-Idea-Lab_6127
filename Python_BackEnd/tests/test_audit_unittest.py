@@ -138,6 +138,92 @@ class Test3CLI(unittest.TestCase):
         self.assertEqual(returncode, 0, f"预测命令执行失败，错误信息: {stderr}")
         self.assertIn("冒犯性言论", stdout)
 
+# 测试报告保存路径
+REPORT_DIR = os.path.join(PROJECT_ROOT, "tests")
+REPORT_PATH = os.path.join(REPORT_DIR, "test_report_unittest.txt")
+
+import time
+class TestResultWithTime(unittest.TextTestResult):
+    """扩展测试结果类，记录每个用例的执行时间"""
+    def startTest(self, test):
+        self._start_time = time.time()
+        super().startTest(test)
+
+    def addSuccess(self, test):
+        elapsed = time.time() - self._start_time
+        self.test_times[test] = elapsed
+        super().addSuccess(test)
+
+    def addFailure(self, test, err):
+        elapsed = time.time() - self._start_time
+        self.test_times[test] = elapsed
+        super().addFailure(test, err)
+
+    def addError(self, test, err):
+        elapsed = time.time() - self._start_time
+        self.test_times[test] = elapsed
+        super().addError(test, err)
+
+
+class TestRunnerWithReport(unittest.TextTestRunner):
+    """自定义测试运行器，生成详细测试报告"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.test_times = {}
+
+    def _makeResult(self):
+        result = TestResultWithTime(self.stream, self.descriptions, self.verbosity)
+        result.test_times = self.test_times
+        return result
+
+    def run(self, test):
+        # 确保报告目录存在
+        os.makedirs(REPORT_DIR, exist_ok=True)
+        
+        # 执行测试
+        result = super().run(test)
+        
+        # 生成测试报告
+        with open(REPORT_PATH, 'w', encoding='utf-8') as f:
+            f.write("="*60 + "\n")
+            f.write(f"测试报告生成时间: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"总用例数: {result.testsRun}\n")
+            f.write(f"成功: {result.testsRun - len(result.failures) - len(result.errors)}\n")
+            f.write(f"失败: {len(result.failures)}\n")
+            f.write(f"错误: {len(result.errors)}\n")
+            f.write("="*60 + "\n\n")
+            
+            # 详细记录每个用例
+            for test_case in result.test_times:
+                case_name = str(test_case).split()[0]  # 提取用例名称
+                case_doc = test_case._testMethodDoc or "无描述"  # 用例描述
+                elapsed = result.test_times[test_case]  # 耗时
+                
+                # 判断执行结果
+                if test_case in [f[0] for f in result.failures]:
+                    status = "失败"
+                elif test_case in [e[0] for e in result.errors]:
+                    status = "错误"
+                else:
+                    status = "成功"
+                
+                f.write(f"用例名称: {case_name}\n")
+                f.write(f"用例描述: {case_doc}\n")
+                f.write(f"执行结果: {status}\n")
+                f.write(f"耗时: {elapsed:.6f}秒\n")
+                f.write("-"*60 + "\n")
+        
+        print(f"\n测试报告已生成: {REPORT_PATH}")
+        return result
+
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    # 使用自定义运行器执行测试并生成报告
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(Test1Preprocess)
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(Test2ModelPredict))
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(Test3CLI))
+    
+    runner = TestRunnerWithReport(verbosity=2)
+    runner.run(suite)
+
 
