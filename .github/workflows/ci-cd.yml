@@ -41,24 +41,26 @@ jobs:
 
       # 步骤6：下载NLTK数据
       - name: 下载NLTK stopwords和punkt数据集
-        run: python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
+        run: python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt'); nltk.download('punkt_tab')"# 
 
-      # 步骤7：执行后端测试（指定后端的测试脚本）
+      # 步骤8：运行后端测试并生成报告
       - name: 运行后端测试并生成报告
         run: |
-          # 进入后端目录执行脚本（确保路径正确）
-          cd Python_BackEnd && python tests/test_audit_unittest.py
-          # 验证报告是否生成（路径：Python_BackEnd/tests/test_report_unittest.txt）
-          if [ ! -f "Python_BackEnd/tests/test_report_unittest.txt" ]; then
-            echo "❌ 测试报告未生成！"
+          # 执行测试脚本，生成报告
+          python tests/test_audit_unittest.py
+          # 校验报告是否存在
+          REPORT_PATH="tests/test_report_unittest.txt"
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "❌ 测试报告未生成！当前目录：$(pwd)，查找路径：$REPORT_PATH"
             exit 1
           fi
-          echo "✅ 测试报告生成成功！"
+          echo "✅ 测试报告生成成功！路径：$(pwd)/$REPORT_PATH"
+        working-directory: Python_BackEnd
 
-      # 步骤8：上传测试报告（指定后端报告路径）
+      # 步骤9：上传测试报告（路径与校验一致）
       - name: 上传unittest测试报告
         uses: actions/upload-artifact@v4
         with:
           name: 后端测试报告（unittest版）
-          path: Python_BackEnd/tests/test_report_unittest.txt # 后端报告的实际路径
+          path: Python_BackEnd/tests/test_report_unittest.txt  # 绝对路径，避免歧义
           retention-days: 30
