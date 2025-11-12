@@ -45,7 +45,7 @@ jobs:
           echo "--- 检查NLTK版本 ---"
           python -c "import nltk; print('NLTK Version:', nltk.__version__)"
           python -c "import nltk; assert nltk.__version__ == '3.9.2', '错误：NLTK版本不是3.9.2！请检查 requirements.txt 和依赖安装过程。'"
-        working-directory: backend # 确保在backend目录下执行
+        working-directory: Python_BackEnd # 确保在Python_BackEnd目录下执行
 
 
       # 步骤6：下载NLTK数据
