@@ -57,7 +57,7 @@ jobs:
 
       # 步骤8：上传测试报告（指定后端报告路径）
       - name: 上传unittest测试报告
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: 后端测试报告（unittest版）
           path: Python_BackEnd/tests/test_report_unittest.txt # 后端报告的实际路径
