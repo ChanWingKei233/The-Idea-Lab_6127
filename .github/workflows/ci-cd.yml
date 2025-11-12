@@ -39,18 +39,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Python_BackEnd/requirements.txt # 明确指向后端的依赖文件
 
-      # 新增步骤：校验NLTK版本
-      - name: 强制检查NLTK版本
-        run: |
-          echo "--- 检查NLTK版本 ---"
-          python -c "import nltk; print('NLTK Version:', nltk.__version__)"
-          python -c "import nltk; assert nltk.__version__ == '3.9.2', '错误：NLTK版本不是3.9.2！请检查 requirements.txt 和依赖安装过程。'"
-        working-directory: Python_BackEnd # 确保在Python_BackEnd目录下执行
-
-
       # 步骤6：下载NLTK数据
       - name: 下载NLTK stopwords和punkt数据集
-        run: python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
+        run: python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt'); nltk.download('punkt_tab')"
 
       # 步骤7：执行后端测试（指定后端的测试脚本）
       - name: 运行后端测试并生成报告
