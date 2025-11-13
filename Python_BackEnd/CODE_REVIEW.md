@@ -43,4 +43,4 @@
 ### 2.5 lanmeng（CI/CD 配置）
 | 序号 | 审查模块               | 审查内容 | 审查结果 | 验证方式 |
 | -- | -------------------- | -------- | -------- | -------- |
-| 1  |1. 触发条件：推送代码到dev或main分支 / 发起 PR 到dev或main分支（符合持续集成逻辑）；2. 流程步骤完整：   - 拉代码 → 安装 Python 3.13 → 安装依赖 → 提前下载 NLTK 数据（解决下载慢问题）；   - 运行 unittest 测试（调用 yongqi 的 test_audit_unittest.py）；   - 上传测试报告（test_report_unittest.txt）；3. 环境兼容：安装 wget 用于数据集下载，指定 Python 3.13（与本地开发环境一致）。| \[❌] 不符合 | 1. 查看 ci-cd.yml 代码 → 核对步骤顺序和命令正确性（如 NLTK 下载命令、unittest 运行命令）；2. 推送一个空提交（git commit --allow-empty -m "测试 CI"）→ 查看 GitHub Actions 日志 → 确认所有步骤显示绿色对勾；3. 下载 GitHub Actions Artifacts时遇到的 XML 错误，核心原因是Artifacts名称包含中文和特殊字符。|
+| 1  |1. 触发条件：推送代码到dev或main分支 / 发起 PR 到dev或main分支（符合持续集成逻辑）；2. 流程步骤完整：   - 拉代码 → 安装 Python 3.13 → 安装依赖 → 提前下载 NLTK 数据（解决下载慢问题）；   - 运行 unittest 测试（调用 yongqi 的 test_audit_unittest.py）；   - 上传测试报告（test_report_unittest.txt）；3. 环境兼容：安装 wget 用于数据集下载，指定 Python 3.13（与本地开发环境一致）。| \[√] 不符合 | 1. 查看 ci-cd.yml 代码 → 核对步骤顺序和命令正确性（如 NLTK 下载命令、unittest 运行命令）；2. 推送一个空提交（git commit --allow-empty -m "测试 CI"）→ 查看 GitHub Actions 日志 → 确认所有步骤显示绿色对勾；3. 下载 GitHub Actions Artifacts→ 验证 test_report_unittest.txt 存在且记录完整|
