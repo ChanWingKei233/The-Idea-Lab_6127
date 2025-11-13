@@ -61,6 +61,6 @@ jobs:
       - name: 上传unittest测试报告
         uses: actions/upload-artifact@v4
         with:
-          name: 后端测试报告（unittest版）
+          name: backend-unittest-report
           path: Python_BackEnd/tests/test_report_unittest.txt  # 绝对路径，避免歧义
           retention-days: 30
