@@ -1,3 +1,4 @@
+# test CICD
 # -*- coding: utf-8 -*-
 """
 核心模块3：预测功能
