@@ -18,8 +18,10 @@ git clone https://github.com/ChanWingKei233/The-Idea-Lab_6127.git
 ```bash
 # 1. 创建虚拟环境
 python3 -m venv .venv
-# 2. 激活（macOS / bash / zsh）
+# 2.1 激活（macOS / bash / zsh）
 source .venv/bin/activate
+# 2.2 激活（cmd）
+.\.venv\Scripts\activate.bat
 # 3. 可选：升级 pip
 python -m pip install --upgrade pip
 # 4. 安装 requirements.txt里所有的包
@@ -40,14 +42,13 @@ python run.py train
 # 2. 测试文本
 python run.py test
 # 3. 预测文本
-python run.py predict 'You are a nigger.'
+python run.py predict "You are a nigger."
 ```
 
 ## Unittest及生成测试报告
 ```bash
 python tests/test_audit_unittest.py
 ```
-
 
 
 ## 项目文档索引
