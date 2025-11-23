@@ -1,4 +1,3 @@
-# test CICD
 """
 app/data_process.py
 

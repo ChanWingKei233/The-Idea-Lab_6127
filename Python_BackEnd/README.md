@@ -33,6 +33,21 @@ pip install 包名
 pip freeze > requirements.txt
 ```
 
+## 项目CLI命令：
+```bash
+# 1. 训练模型
+python run.py train
+# 2. 测试文本
+python run.py test
+# 3. 预测文本
+python run.py predict 'You are a nigger.'
+```
+
+## Unittest及生成测试报告
+```bash
+python tests/test_audit_unittest.py
+```
+
 
 
 ## 项目文档索引
