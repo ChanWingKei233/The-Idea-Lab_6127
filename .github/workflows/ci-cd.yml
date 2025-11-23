@@ -1,0 +1,66 @@
+name: 内容审核系统 CI/CD 流程（后端）
+on:
+  push:
+    branches: [ dev,main ]
+    paths:
+      - 'Python_BackEnd/**' # 仅当后端文件夹内容变更时，才触发 CI（避免前端修改触发后端构建）
+  pull_request:
+    branches: [ dev,main ]
+    paths:
+      - 'Python_BackEnd/**' # 同上，仅监听后端文件变更
+
+jobs:
+  build-and-test-Python_BackEnd:
+    runs-on: ubuntu-latest
+    steps:
+      # 步骤1：拉取整个项目代码（含前端、后端）
+      - name: 拉取项目代码
+        uses: actions/checkout@v4
+
+      # 步骤2：切换到后端目录（核心修改！所有后续操作都在 Python_BackEnd 文件夹下执行）
+      - name: 进入后端文件夹
+        run: cd Python_BackEnd
+
+      # 步骤3：安装Python环境（和后端本地环境一致）
+      - name: 安装Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+          cache-dependency-path: "Python_BackEnd/requirements.txt" # 指定后端依赖文件路径
+
+      # 步骤4：安装系统依赖
+      - name: 安装系统必需工具
+        run: sudo apt-get update && sudo apt-get install -y wget
+
+      # 步骤5：安装后端Python依赖（指定后端的 requirements.txt）
+      - name: 安装后端项目依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Python_BackEnd/requirements.txt # 明确指向后端的依赖文件
+
+      # 步骤6：下载NLTK数据
+      - name: 下载NLTK stopwords和punkt数据集
+        run: python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt'); nltk.download('punkt_tab')"# 
+
+      # 步骤8：运行后端测试并生成报告
+      - name: 运行后端测试并生成报告
+        run: |
+          # 执行测试脚本，生成报告
+          python tests/test_audit_unittest.py
+          # 校验报告是否存在
+          REPORT_PATH="tests/test_report_unittest.txt"
+          if [ ! -f "$REPORT_PATH" ]; then
+            echo "❌ 测试报告未生成！当前目录：$(pwd)，查找路径：$REPORT_PATH"
+            exit 1
+          fi
+          echo "✅ 测试报告生成成功！路径：$(pwd)/$REPORT_PATH"
+        working-directory: Python_BackEnd
+
+      # 步骤9：上传测试报告（路径与校验一致）
+      - name: 上传unittest测试报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-unittest-report
+          path: Python_BackEnd/tests/test_report_unittest.txt  # 绝对路径，避免歧义
+          retention-days: 30
